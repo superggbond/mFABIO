@@ -11,7 +11,7 @@ Haihan Zhang, Kevin He, Lam C. Tsoi, and Xiang Zhou#. mFABIO: Multi-tissue TWAS 
 
 Contact
 -------------------
-For any questions or feedbacks on FABIO software, please feel free to leave messages on the [github issues](https://github.com/superggbond/mFABIO/issues) or contact me through email: hhzhang@umich.edu
+For any questions or feedbacks on mFABIO software, please feel free to leave messages on the [github issues](https://github.com/superggbond/mFABIO/issues) or contact me through email: hhzhang@umich.edu
 
 Our group
 -------------------
