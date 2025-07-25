@@ -1,0 +1,21 @@
+Package: mFABIO
+Title: multi-tissue Fine-mApping of causal genes for BInary Outcomes
+Version: 1.0.0
+Author: Haihan Zhang
+Maintainer: Haihan Zhang <hhzhang@umich.edu>
+Description: This package performs multi-tissue TWAS fine-mapping on binary outcomes 
+    by jointly modeling all gene-tissue pairs across multiple tissues, and 
+    provides the posterior inclusion probability (PIP) as an important 
+    measure of evidence for the gene’s association with the outcome trait.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    ggplot2,
+    irlba,
+    matrixStats,
+    progress
+Depends: 
+    R (>= 2.10)
+LazyData: true
