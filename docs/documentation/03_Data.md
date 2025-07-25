@@ -3,15 +3,26 @@ layout: page
 title: Data Input
 description: ~
 ---
-There are two major input files for mFABIO to perform TWAS fine-mapping on a binary trait of interest. Example data can be downloaded [here](https://www.dropbox.com/scl/fo/fxynm8uvedgvy7ni6hcbt/AAfTQVo89s78DsRNwpBH3lU?rlkey=nbqwrdi2r5y1bbojzf7z8ev7h&st=yz28n4nj&dl=0).
-#### 1. Predicted GReX of the TWAS cohort
-  * An example R dataframe can be loaded from the downloaded file:
+There are two mandatory and one optional inputs for mFABIO to perform multi-tissue TWAS fine-mapping on a binary trait of interest. Example data can be loaded within the mFABIO R package:
+```r
+    library("mFABIO")
+    data("example_data")
+ ```
+
+#### 1. Predicted GReX of the TWAS cohort at gene-tissue pair level
+  * An example R matrix can be loaded like this:
  ```r
-    grex <- data.table::fread('./example_grex.txt.gz')
+    G = example_data$G
  ```
   
 #### 2. Binary phenotype of the TWAS cohort
-  * An example R vector coding case as 1 and control as 0 can also be loaded from the downloaded file:
+  * An example R vector coding case as 1 and control as 0 can be loaded like this:
  ```r
-    pheno <- scan('./example_pheno.txt',numeric())
- ``` 
+    y <- example_data$y
+ ```
+
+#### 3. Corresponding genotypes of the cis-SNPs in the region of interest (optional)
+  * This input is optional, and you can include it when considering the pleiotropic effects. An example R matrix can be loaded like this:
+ ```r
+    X <- example_data$X
+ ```
