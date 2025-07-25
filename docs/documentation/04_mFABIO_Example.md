@@ -8,11 +8,13 @@ This page provides a tutorial for multi-tissue TWAS fine-mapping using mFABIO. B
 ### mFABIO
 The example data for mFABIO tutorial can be accessed following this [page](https://superggbond.github.io/mFABIO/documentation/03_Data.html). Here are the details about the input data formats and how to run mFABIO. 
 
-### 1.1 Formats of input files for mFABIO
+### 1 Format of input for mFABIO
 * Predicted GReX: We require the predicted GReX of the TWAS cohort built up using standard softwares like [SuSiE](https://github.com/stephenslab/susieR). The input GReX is expected to be a R matrix, which has column names in the format of [Tissue Name]-[Gene Name/ID]. No requirement on the row names of this R matrix. An example data matrix can be found here:
 ```r
-library(FABIO)
+library(mFABIO)
 data(example_data)
+> dim(example_data$G)
+[1] 2000  300
 > example_data$G[1:5,1:5]
      Tissue1-Gene001 Tissue2-Gene001 Tissue3-Gene001 Tissue4-Gene001 Tissue5-Gene001
 [1,]      -0.7550567     -1.42914073     -0.88960517     -0.11741247      -0.4213615
@@ -22,23 +24,31 @@ data(example_data)
 [5,]      -0.4316600     -0.07432518      0.62807354     -1.01307066      -0.5182504
 ```
 
-* Binary phenotypes: We also require the observed binary phenotypes of the TWAS cohort. The input phenotypes are expected as a R vector, with 1 coding for case and 0 for control. The order of the individuals here should be consistent with the order of rows in the predicted GReX file. An example file can be downloaded [here](https://www.dropbox.com/scl/fo/fxynm8uvedgvy7ni6hcbt/AAfTQVo89s78DsRNwpBH3lU?dl=0&e=2&preview=example_pheno.txt&rlkey=nbqwrdi2r5y1bbojzf7z8ev7h&st=yz28n4nj).
-
-### 1.2 Preperation of the predicted GReX file
-FABIO provides a function to help generate the predicted GReX file in the FABIO-requested format, with the inputs:
-* PLINK 1 binary files (.bed+.bim+.fam) of genotypes sorted by chromosome. Please refer to this [webpage](https://www.cog-genomics.org/plink/2.0/input#bed) for the details of the format.
-* Pre-trained eQTL weights first sorted by chromosome, then grouped by gene. The eQTL weights we used in the manuscript in the preferred file structures can be downloaded [here](https://www.dropbox.com/scl/fo/fxynm8uvedgvy7ni6hcbt/AAfTQVo89s78DsRNwpBH3lU?dl=0&e=1&preview=GEUVADIS_BSLMM_weights.zip&rlkey=nbqwrdi2r5y1bbojzf7z8ev7h&st=yz28n4nj). These weights were trained by BSLMM using GEUVADIS data.
-
-This helper function can be applied like this:
+* Binary phenotypes: We also require the observed binary phenotypes of the TWAS cohort. The input phenotypes are expected as a R vector, with 1 coding for case and 0 for control. The order of the individuals here should be consistent with the order of rows in the predicted GReX matrix. An example can be found here:
 ```r
-library(FABIO)
+> dim(example_data$y)
+[1] 2000    1
+> head(example_data$y)
+     [,1]
+[1,]    1
+[2,]    1
+[3,]    1
+[4,]    0
+[5,]    1
+[6,]    1
+```
 
-chr <- 22
-geno_dir <- "/path/to/plink/files"
-weight_dir <- './GEUVADIS_BSLMM_weights/chr22'
-# The eQTL weight files can be customized, but should be organized in the same format and file structures as our example files.
-prepGReX(chr, geno_dir, weight_dir)
-# The results will be saved as a file named "grex_for_fabio.txt.gz", in the format illustrated in the section 1.1 above.
+*  Genotypes of cis-SNPs (optional): You may include the genotypes of all the cis-SNPs used in predicting GReX to accoungt for pleiotropic effects. The input genotypes are expected as a R matrix, and no requirements on the row or column names. An example can be found here:
+```r
+> dim(example_data$X)
+[1] 2000 1000
+> example_data$X[1:5,1:5]
+           [,1]       [,2]       [,3]        [,4]        [,5]
+[1,] -1.0357630 -0.0993181 -0.8196765 -1.04250565 -0.56026171
+[2,]  1.5967262  1.3356525 -0.3146939  0.81951812  0.87080511
+[3,]  0.6504174 -1.2835909 -0.5329149  0.25042639 -1.81556533
+[4,] -1.1285718 -0.4096962 -1.4196629  0.03090357 -0.07253444
+[5,]  0.3552911 -1.0795471  0.6296525 -0.62696991  0.63727596
 ```
 
 ### 2. Running FABIO
