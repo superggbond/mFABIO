@@ -3,13 +3,15 @@ layout: page
 title: Tutorial
 description: ~
 ---
-This page provides a tutorial for TWAS fine-mapping using mFABIO. Before runing the example code, make sure that the mFABIO software is installed successfully. For instructions on installation, please see the [Installation section](https://superggbond.github.io/mFABIO/documentation/02_Installation.html).
+This page provides a tutorial for multi-tissue TWAS fine-mapping using mFABIO. Before runing the example code, make sure that the mFABIO software is installed successfully. For instructions on installation, please see the [Installation section](https://superggbond.github.io/mFABIO/documentation/02_Installation.html).
 
 ### mFABIO
 The example data for mFABIO tutorial can be accessed following this [page](https://superggbond.github.io/mFABIO/documentation/03_Data.html). Here are the details about the input data formats and how to run mFABIO. 
 
 ### 1.1 Formats of input files for mFABIO
-* Predicted GReX: We require the predicted GReX of the TWAS cohort built up using standard softwares like [PredXican](https://github.com/hakyimlab/MetaXcan) or [BSLMM](https://github.com/genetics-statistics/GEMMA). The input GReX is expected to be a .txt or .txt.gz file, which has gene names as the first column, with the following columns of preicted GReX at individual-level. Each following column represents GReX of genes for an individual. An example file can be downloaded [here](https://www.dropbox.com/scl/fo/fxynm8uvedgvy7ni6hcbt/AAfTQVo89s78DsRNwpBH3lU?dl=0&e=2&preview=example_grex.txt.gz&rlkey=nbqwrdi2r5y1bbojzf7z8ev7h&st=yz28n4nj).
+* Predicted GReX: We require the predicted GReX of the TWAS cohort built up using standard softwares like [SuSiE](https://github.com/stephenslab/susieR). The input GReX is expected to be a R matrix, which has column names in the format of [Tissue Name]-[Gene Name/ID]. An example data matrix can be found here:
+* 
+
 * Binary phenotypes: We also require the observed binary phenotypes of the TWAS cohort. The input phenotypes are expected as a single-column .txt file, with 1 coding for case and 0 for control. The order of the individuals here should be consistent with the order of columns in the predicted GReX file. An example file can be downloaded [here](https://www.dropbox.com/scl/fo/fxynm8uvedgvy7ni6hcbt/AAfTQVo89s78DsRNwpBH3lU?dl=0&e=2&preview=example_pheno.txt&rlkey=nbqwrdi2r5y1bbojzf7z8ev7h&st=yz28n4nj).
 
 ### 1.2 Preperation of the predicted GReX file
