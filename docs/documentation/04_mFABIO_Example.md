@@ -38,7 +38,7 @@ data(example_data)
 [6,]    1
 ```
 
-*  Genotypes of cis-SNPs (optional): You may include the genotypes of all the cis-SNPs used in predicting GReX to accoungt for pleiotropic effects. The input genotypes are expected as a R matrix, and no requirements on the row or column names. An example can be found here:
+*  Genotypes of cis-SNPs (optional): You may include the genotypes of all the cis-SNPs used in predicting GReX to accoungt for pleiotropic effects. The input genotypes are expected as a R matrix with no requirements on the row or column names, but the row order of the individuals here should be consistent with that in the predicted GReX matrix as well as the phenotype vector. An example can be found here:
 ```r
 > dim(example_data$X)
 [1] 2000 1000
@@ -54,13 +54,7 @@ data(example_data)
 ### 2. Running FABIO
 The TWAS fine-mapping can be performed using the following scripts with our example data:
 ```r
-library(FABIO)
-
-grex <- data.table::fread('./example_grex.txt.gz')
-pheno <- scan('./example_pheno.txt',numeric())
-fabio(grex, pheno, beta_a=0, beta_b=0, w_step=100, s_step=1000)
-# The output results will be saved as a file named "FABIO_out.csv"
-# w_step and s_step are set to be small for a shorter running time as an example here
+res <- run_mfabio(example_data$G, example_data$y, example_data$X)
 ```
 The inputs are:
 - grex: the predicted GReX
