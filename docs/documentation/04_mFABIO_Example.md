@@ -38,7 +38,7 @@ data(example_data)
 [6,]    1
 ```
 
-*  Genotypes of cis-SNPs (optional): You may include the genotypes of all the cis-SNPs used in predicting GReX to accoungt for pleiotropic effects. The input genotypes are expected as a R matrix with no requirements on the row or column names, but the row order of the individuals here should be consistent with that in the predicted GReX matrix as well as the phenotype vector. An example can be found here:
+*  Genotypes of cis-SNPs (optional): You may include the genotypes of all the cis-SNPs used in predicting GReX to account for pleiotropic effects. The input genotypes are expected as a R matrix with no requirements on the row or column names, but the row order of the individuals here should be consistent with that in the predicted GReX matrix as well as the phenotype vector. An example can be found here:
 ```r
 > dim(example_data$X)
 [1] 2000 1000
@@ -51,36 +51,32 @@ data(example_data)
 [5,]  0.3552911 -1.0795471  0.6296525 -0.62696991  0.63727596
 ```
 
-### 2. Running FABIO
-The TWAS fine-mapping can be performed using the following scripts with our example data:
+### 2. Running mFABIO
+The multi-tissue TWAS fine-mapping can be performed using the following scripts with our example data:
 ```r
 res <- run_mfabio(example_data$G, example_data$y, example_data$X)
 ```
-The inputs are:
-- grex: the predicted GReX
-- pheno: the TWAS phenotype vector
-- beta_a: alpha of the prior beta distribution on pi, both beta_a and beta_b are 0 by default, leading to the default uniform prior on log pi
-- beta_b: beta of the prior beta distribution on pi, both beta_a and beta_b are 0 by default, leading to the default uniform prior on log pi
-- w-step: the number of warm-up steps in MCMC, default = 6000
-- s-step: the number of sampling steps in MCMC, default = 20000
 
-### 3. FABIO output
-FABIO will output a summary table with three columns, and save it as a .csv file:
+### 3. mFABIO output
+mFABIO will output a summary R list object. A diagnostic glance on the results can be extracted like this:
+```r
+> res$plot_diagnostics()
+```
+![the plot generated from our example data](man/figures/my_cars_plot.png)
 
-|Gene|PIP|estFDR|
-|---|---|---|
-|DLEU2L|1|0|
-|DNTTIP2|1|0|
-|FAM73A|1|0|
-|FHL3|1|0|
-|PSRC1|1|0|
-|TCTEX1D4|1|0|
-|UBE4B|1|0|
-|GCLM|0.84|0.16|
-|PSMA5|0.41|0.75|
-|FBXO42|0.4|1|
-|...|...|...|
+The gene level PIPs can be extracted like this:
+```r
+> sort(res$pip_gene, decreasing = T)[1:10]
+   Gene007    Gene040    Gene034    Gene030    Gene031    Gene037    Gene006    Gene048    Gene027    Gene024 
+0.09971505 0.08332993 0.03362165 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 
+```
 
-- Gene: name of each input gene; the genes are ordered decreasingly by PIP
-- PIP: corresponding PIP of each input gene
-- estFDR: estimated FDR using that gene as cutoff
+The gene-tissue pair level PIPs can be extracted like this:
+```r
+> sort(res$pip_pair, decreasing = T)[1:10]
+Tissue2-Gene040 Tissue6-Gene007 Tissue6-Gene034 Tissue3-Gene007 Tissue4-Gene007 Tissue5-Gene007 Tissue2-Gene007 Tissue1-Gene007 
+   1.000000e+00    1.000000e+00    9.997819e-01    3.773916e-06    3.644649e-06    3.368552e-06    2.767472e-06    2.493055e-06 
+Tissue1-Gene040 Tissue6-Gene040 
+   8.795886e-08    8.508355e-08 
+```
+
