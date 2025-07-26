@@ -61,6 +61,7 @@ res <- run_mfabio(example_data$G, example_data$y, example_data$X)
 mFABIO will output a summary R list object. A diagnostic glance on the results can be extracted like this:
 ```r
 > res$plot_diagnostics()
+# The true signals in our simulated example data are: Gene007 in Tissue6, Gene034 in Tissue6, and Gene040 in Tissue2.
 ```
 ![the plot generated from our example data](example_plot.png)
 
