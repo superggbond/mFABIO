@@ -12,7 +12,7 @@ There are two mandatory and one optional inputs for mFABIO to perform multi-tiss
 #### 1. Predicted GReX of the TWAS cohort at gene-tissue pair level
   * An example R matrix can be loaded like this:
  ```r
-    G = example_data$G
+    G <- example_data$G
  ```
   
 #### 2. Binary phenotype of the TWAS cohort
