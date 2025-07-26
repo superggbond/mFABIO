@@ -5,8 +5,8 @@ description: ~
 ---
 There are two mandatory and one optional inputs for mFABIO to perform multi-tissue TWAS fine-mapping on a binary trait of interest. Example data can be loaded within the mFABIO R package:
 ```r
-    library("mFABIO")
-    data("example_data")
+    library(mFABIO)
+    data(example_data)
  ```
 
 #### 1. Predicted GReX of the TWAS cohort at gene-tissue pair level
