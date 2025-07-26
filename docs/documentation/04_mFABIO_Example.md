@@ -62,7 +62,7 @@ mFABIO will output a summary R list object. A diagnostic glance on the results c
 ```r
 > res$plot_diagnostics()
 ```
-![the plot generated from our example data](man/figures/my_cars_plot.png)
+![the plot generated from our example data](example_plot.png)
 
 The gene level PIPs can be extracted like this:
 ```r
