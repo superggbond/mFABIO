@@ -8,7 +8,7 @@ This page provides a tutorial for multi-tissue TWAS fine-mapping using mFABIO. B
 ### mFABIO
 The example data for mFABIO tutorial can be accessed following this [page](https://superggbond.github.io/mFABIO/documentation/03_Data.html). Here are the details about the input data formats and how to run mFABIO. 
 
-### 1 Format of input for mFABIO
+### 1. Format of input for mFABIO
 * Predicted GReX: We require the predicted GReX of the TWAS cohort built up using standard softwares like [SuSiE](https://github.com/stephenslab/susieR). The input GReX is expected to be a R matrix, which has column names in the format of [Tissue Name]-[Gene Name/ID]. No requirement on the row names of this R matrix. An example data matrix can be found here:
 ```r
 library(mFABIO)
