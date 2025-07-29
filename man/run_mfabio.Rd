@@ -10,7 +10,6 @@ run_mfabio(
   X = NULL,
   L = 10,
   K = 10,
-  prior_var_mu = 100,
   prior_a_b = 1,
   prior_d_b = 1,
   prior_a_alpha = 1,
