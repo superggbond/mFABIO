@@ -61,24 +61,24 @@ res <- run_mfabio(G = example_data$G, y = example_data$y, X = example_data$X)
 mFABIO will output a summary R list object. A diagnostic glance on the results can be extracted like this:
 ```r
 > res$plot_diagnostics()
-# The true signals in our simulated example data are: Gene007 in Tissue6,
-# Gene034 in Tissue6, and Gene040 in Tissue2.
+# The true signals in our simulated example data are: Gene009 in Tissue6,
+# Gene027 in Tissue4, and Gene049 in Tissue4.
 ```
 ![the plot generated from our example data](example_plot.png)
 
 The gene level PIPs can be extracted like this:
 ```r
 > sort(res$pip_gene, decreasing = T)[1:10]
-   Gene007    Gene040    Gene034    Gene030    Gene031    Gene037    Gene006    Gene048    Gene027    Gene024 
-0.09971505 0.08332993 0.03362165 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 0.01666667 
+   Gene009    Gene049    Gene027    Gene045    Gene030    Gene050    Gene031    Gene042    Gene005    Gene014 
+0.09383752 0.03743529 0.03721592 0.01785030 0.01784515 0.01784478 0.01779710 0.01777913 0.01777440 0.01777248
 ```
 
 The gene-tissue pair level PIPs can be extracted like this:
 ```r
 > sort(res$pip_pair, decreasing = T)[1:10]
-Tissue2-Gene040 Tissue6-Gene007 Tissue6-Gene034 Tissue3-Gene007 Tissue4-Gene007 Tissue5-Gene007 Tissue2-Gene007 Tissue1-Gene007 
-   1.000000e+00    1.000000e+00    9.997819e-01    3.773916e-06    3.644649e-06    3.368552e-06    2.767472e-06    2.493055e-06 
-Tissue1-Gene040 Tissue6-Gene040 
-   8.795886e-08    8.508355e-08 
+Tissue6-Gene009 Tissue4-Gene027 Tissue4-Gene049 Tissue3-Gene009 Tissue2-Gene009 Tissue1-Gene009 Tissue4-Gene009 
+     1.00000000      0.99999938      0.99995888      0.04793659      0.04769466      0.04675122      0.04575907 
+Tissue5-Gene009 Tissue5-Gene049 Tissue3-Gene049 
+     0.04569619      0.02861870      0.02824001 
 ```
 
