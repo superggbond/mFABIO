@@ -1,7 +1,7 @@
 #' Calculate Expected Value of a Truncated Normal Distribution
 #'
 #' An efficient, vectorized function to compute the mean of a Normal
-#' distribution that is truncated to a given interval [lower, upper]. It
+#' distribution that is truncated to a given interval (lower, upper). It
 #' includes robust handling of edge cases like zero variance, infinite bounds,
 #' and truncation intervals with near-zero probability mass.
 #'
