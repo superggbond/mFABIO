@@ -8,6 +8,7 @@ run_mfabio(
   G,
   y,
   X = NULL,
+  C = NULL,
   L = 10,
   K = 10,
   prior_a_b = 1,
@@ -36,6 +37,8 @@ Column names must be in the format 'Tissue-GeneID'.}
 \item{y}{A numeric vector of binary outcomes (0 or 1) for n individuals.}
 
 \item{X}{An optional numeric matrix of genotypes (n individuals x p SNPs). Defaults to \code{NULL}.}
+
+\item{C}{An optional numeric matrix of individual-level covariates (n individuals x c covariates). Defaults to \code{NULL}.}
 
 \item{L}{An integer specifying the maximum number of causal effects to fit.}
 
