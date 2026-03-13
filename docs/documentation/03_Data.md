@@ -26,3 +26,9 @@ There are two mandatory and one optional inputs for mFABIO to perform multi-tiss
  ```r
     X <- example_data$X
  ```
+
+#### 4. Covariates like age, sex, principal components at individual-level (optional)
+  * This input is optional, and you can include it when considering the covariates. An example R matrix can be loaded like this:
+ ```r
+    C <- example_data$C
+ ```
