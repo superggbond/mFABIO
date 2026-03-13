@@ -6,6 +6,7 @@
 #'   Column names must be in the format 'Tissue-GeneID'.
 #' @param y A numeric vector of binary outcomes (0 or 1) for n individuals.
 #' @param X An optional numeric matrix of genotypes (n individuals x p SNPs). Defaults to `NULL`.
+#' @param C An optional numeric matrix of individual-level covariates (n individuals x c covariates). Defaults to `NULL`.
 #' @param L An integer specifying the maximum number of causal effects to fit.
 #' @param K An integer specifying the number of principal components to extract from `X`. Defaults to 10.
 #' @param base_prior_delta_gene A numeric base hyperparameter for the Dirichlet prior on gene selection.
@@ -23,7 +24,7 @@
 #' @export
 run_mfabio <- function(
   # --- Core Inputs ---
-  G, y, X = NULL,
+  G, y, X = NULL, C = NULL,
   # --- Model Parameters ---
   L = 10, K = 10,
   # --- Priors ---
@@ -106,10 +107,24 @@ run_mfabio <- function(
     if (p_input < K && p_input > 0) { K <- p_input }
     else if (p_input == 0 || K <= 0) { include_pleio_term <- FALSE; X <- NULL; K <- 0 }
   } else { K <- 0 }
+
+  # Handle additional individual-level covariates (C * tilda)
+  include_covariate_term <- !is.null(C)
+  if (include_covariate_term) {
+    if (!is.matrix(C)) C <- as.matrix(C)
+    if (nrow(C) != n) stop("Dim C/y mismatch.")
+    c_covariates <- ncol(C)
+    if (c_covariates == 0) {
+      include_covariate_term <- FALSE
+      C <- NULL
+    }
+  } else {
+    c_covariates <- 0
+  }
   
   if (verbose) {
-    cat(sprintf("Model setup: n=%d, m=%d gene-tissue pairs (%d unique genes), L=%d, Include X effects=%s\n",
-                n, m, Ng, L, include_pleio_term))
+    cat(sprintf("Model setup: n=%d, m=%d gene-tissue pairs (%d unique genes), L=%d, Include X effects=%s, Include C effects=%s\n",
+                n, m, Ng, L, include_pleio_term, include_covariate_term))
   }
   
   # --- 1. Preprocessing with improved numerical stability ---
@@ -141,6 +156,37 @@ run_mfabio <- function(
     
     G_attr$center <- G_means
     G_attr$scale <- G_sds
+  }
+
+  # Standardize C covariates (optional)
+  C_used_in_model <- matrix(0.0, nrow = n, ncol = 0)
+  C_attr <- list(center = numeric(0), scale = numeric(0))
+  C_col_sq_sum <- numeric(0)
+  if (include_covariate_term && c_covariates > 0) {
+    C_used_in_model <- C
+    if (standardize) {
+      C_means <- colMeans(C_used_in_model, na.rm = TRUE)
+      C_sds <- if (requireNamespace("matrixStats", quietly = TRUE)) {
+        matrixStats::colSds(C_used_in_model, na.rm = TRUE)
+      } else {
+        apply(C_used_in_model, 2, function(x) sqrt(var(x, na.rm = TRUE)))
+      }
+
+      zero_var_c <- which(C_sds < 1e-10)
+      if (length(zero_var_c) > 0) {
+        warning(sprintf("Found %d covariate columns in C with near-zero variance.", length(zero_var_c)), call. = FALSE)
+        C_sds[zero_var_c] <- 1
+      }
+
+      C_used_in_model <- sweep(C_used_in_model, 2, C_means, "-")
+      C_used_in_model <- sweep(C_used_in_model, 2, C_sds, "/")
+      C_used_in_model[is.nan(C_used_in_model) | is.infinite(C_used_in_model)] <- 0
+
+      C_attr$center <- C_means
+      C_attr$scale <- C_sds
+    }
+
+    C_col_sq_sum <- colSums(C_used_in_model^2, na.rm = TRUE)
   }
   
   # Pre-compute column squared sums for efficiency
@@ -224,7 +270,18 @@ run_mfabio <- function(
   } else {
     E_alpha_pc <- numeric(0)
   }
-  
+
+  # Initialize covariate effects (tilda) with diffuse Gaussian prior, sigma_tilda^2 -> Inf
+  if (include_covariate_term && c_covariates > 0) {
+    mu_tilda <- rep(0, c_covariates)
+    s2_tilda <- rep(1.0, c_covariates)
+    E_tilda <- mu_tilda
+  } else {
+    mu_tilda <- numeric(0)
+    s2_tilda <- numeric(0)
+    E_tilda <- numeric(0)
+  }
+              
   # Initialize latent variables with better starting values
   E_z <- qnorm(pmax(0.01, pmin(0.99, (y + 0.5) / 2)))
   
@@ -332,10 +389,16 @@ run_mfabio <- function(
     } else {
       0
     }
+
+    C_E_tilda_term <- if (include_covariate_term && c_covariates > 0) {
+      C_used_in_model %*% E_tilda
+    } else {
+      0
+    }
     
     G_E_beta_term <- if(m > 0) G %*% E_beta else 0
     
-    residual_mu <- E_z - G_E_beta_term - Xpc_E_alpha_term
+    residual_mu <- E_z - G_E_beta_term - Xpc_E_alpha_term - C_E_tilda_term
     
     # Simple MLE update for fixed intercept
     mu_intercept <- mean(residual_mu)
@@ -353,6 +416,17 @@ run_mfabio <- function(
       Xpc_E_alpha_term <- X_pc_used_in_model %*% E_alpha_pc
     } else {
       Xpc_E_alpha_term <- 0
+    }
+
+    # --- Update covariate effects with diffuse prior (sigma_tilda^2 -> Inf) ---
+    if (include_covariate_term && c_covariates > 0) {
+      residual_tilda <- E_z - mu_intercept - G_E_beta_term - Xpc_E_alpha_term
+      s2_tilda <- 1 / (C_col_sq_sum + 1e-10)
+      mu_tilda <- s2_tilda * as.numeric(crossprod(C_used_in_model, residual_tilda))
+      E_tilda <- mu_tilda
+      C_E_tilda_term <- C_used_in_model %*% E_tilda
+    } else {
+      C_E_tilda_term <- 0
     }
     
     # --- Compute expected log priors with numerical stability ---
@@ -384,7 +458,7 @@ run_mfabio <- function(
     }
     
     # --- Update variational parameters for effects (optimized) ---
-    E_fit_minus_beta <- mu_intercept + Xpc_E_alpha_term
+    E_fit_minus_beta <- mu_intercept + Xpc_E_alpha_term + C_E_tilda_term
     E_b2_sum <- 0
     
     if (m > 0 && L > 0) {
@@ -535,7 +609,8 @@ run_mfabio <- function(
     
     E_linpred <- mu_intercept + 
       (if(m > 0) G %*% E_beta_final else 0) + 
-      (if(include_pleio_term && K > 0) X_pc_used_in_model %*% E_alpha_pc_final else 0)
+      (if(include_pleio_term && K > 0) X_pc_used_in_model %*% E_alpha_pc_final else 0) +
+      (if(include_covariate_term && c_covariates > 0) C_used_in_model %*% E_tilda else 0)
     
     E_z <- .get_truncated_normal_mean(
       mean = E_linpred,
@@ -725,6 +800,8 @@ run_mfabio <- function(
       s2_b = s2_b,                           # Effect variances
       E_sigma2_b = post_mean_sigma2_b,       # Posterior mean of variance
       intercept = mu_intercept,              # Fixed intercept (single value)
+      tilda = mu_tilda,
+      s2_tilda = s2_tilda,
       posterior_delta_G = setNames(tilde_delta_G, unique_gene_ids),
       posterior_delta_Tg = setNames(tilde_delta_Tg, unique_gene_ids)
     ),
@@ -743,6 +820,7 @@ run_mfabio <- function(
     settings = list(
       L = L,
       K = K,
+      c_covariates = c_covariates,
       n = n,
       m = m,
       n_genes = Ng,
@@ -791,6 +869,10 @@ run_mfabio <- function(
     }
     if(include_pleio_term && K > 0 && !is.null(Xpc_attr$pc_scale)){
       results$standardization$Xpc_scale = Xpc_attr$pc_scale
+    }
+    if(include_covariate_term && c_covariates > 0 && length(C_attr$scale) > 0){
+      results$standardization$C_center = C_attr$center
+      results$standardization$C_scale = C_attr$scale
     }
   }
   
